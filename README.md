@@ -1,2 +1,2 @@
-# prime-checker
-A Java Program that checks prime numbers from a series using multiple threads. A project submitted to De La Salle University.
+# Prime Checker
+A Java Program that checks prime numbers from a series using multiple threads. This project is for the partial completion of the course STDISCM at De La Salle University. The course is headed by and submitted to Sir Ryan Austin Fernandez.
