@@ -5,6 +5,7 @@
  */
 package src;
 
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -35,11 +36,13 @@ public class Main {
         long startTime = System.nanoTime();
 
         // Calculation Proper
-        new Calculator(nLimit, nThreads).execute();
+        List<Integer> primes = new Calculator(nLimit, nThreads).execute();
 
         long endTime = System.nanoTime();
 
-        // Display Time
-        System.out.printf("Total Runtime: %d milliseconds.\n", (long) TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
+        // Display Time and Results
+        System.out.printf("\nTotal Runtime: %d milliseconds.\n", (long) TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
+
+        System.out.printf("There are %d Prime Numbers found.\n\n", primes.size());
     }
 }
