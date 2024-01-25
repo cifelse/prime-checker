@@ -12,7 +12,7 @@ public class PrimeChecker {
      * @param start - The starting range to look for the Prime Numbers.
      * @param end - The ending range to look for the Prime Numbers.
      */
-    public PrimeChecker (int start, int end) {
+    public PrimeChecker(int start, int end) {
         this.start = start;
         this.end = end;
     }
@@ -36,7 +36,7 @@ public class PrimeChecker {
      * @param n - integer to check.
      * @return true if n is prime, and false otherwise.
      */
-    public boolean isPrime (int n) {
+    public boolean isPrime(int n) {
         if (n == 0 || n == 1) return false;
 
         for (int i = 2; i * i <= n; i++) {
