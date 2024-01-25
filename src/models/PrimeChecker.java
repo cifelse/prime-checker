@@ -4,64 +4,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrimeChecker {
-    private int nLimit;
-    private int nThreads;
+    private int start;
+    private int end;
 
     /**
-     * Constructor for Prime Checker
-     * @param nLimit - Upper limit of the Integer
-     * @param nThreads - Number of Threads
+     * Constructor
+     * @param start - The starting range to look for the Prime Numbers.
+     * @param end - The ending range to look for the Prime Numbers.
      */
-    public PrimeChecker (int nLimit, int nThreads) {
-        this.nLimit = nLimit;
-        this.nThreads = nThreads;
+    public PrimeChecker (int start, int end) {
+        this.start = start;
+        this.end = end;
     }
 
     /**
-     * Get the Prime Numbers from 2 to o the upper limit set in the constructor without threading
-     * @return the list of prime numbers from 2 to the upper limit set in the constructor
+     * Get the Prime Numbers from the start to end (set by the Constructor).
+     * @return the list of prime numbers from 2 to the upper limit set in the constructor.
      */
-    public List<Integer> run () {
+    public List<Integer> seek() {
         List<Integer> primes = new ArrayList<Integer>();
-
-        for (int current_num = 2; current_num <= nLimit; current_num++) {
-            if (this.isPrime(current_num)) {
-                primes.add(current_num);
+        for (int current = this.start; current <= this.end; current++) {
+            if (isPrime(current)) {
+                primes.add(current);
             }
         }
-
-        return primes;
-    }
-
-    /**
-     * Get the Prime Numbers from 2 to o the upper limit set in the constructor with multiple threads
-     * @return the list of prime numbers from 2 to the upper limit set in the constructor
-     */
-    public List<Integer> runThreads() {
-        // TODO: Add Threading Algorithm
-
-        List<Integer> primes = new ArrayList<Integer>();
-
-        for (int current_num = 2; current_num <= nLimit; current_num++) {
-            if (this.isPrime(current_num)) {
-                primes.add(current_num);
-            }
-        }
-
         return primes;
     }
 
     /**
      * This function checks if an integer n is prime.
-     * @param n - integer to check
+     * @param n - integer to check.
      * @return true if n is prime, and false otherwise.
      */
     public boolean isPrime (int n) {
+        if (n == 0 || n == 1) return false;
+
         for (int i = 2; i * i <= n; i++) {
             if (n % i == 0) {
                 return false;
             }
         }
+
         return true;
     }
 }
