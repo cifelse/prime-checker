@@ -27,7 +27,6 @@ public class Main {
         // User Input Phase
         Scanner sc = new Scanner(System.in);
 
-        int nLimit = getUserInput(sc, "Enter upper bound of integers to check: ");
         int nThreads = getUserInput(sc, "Enter number of threads: ");
 
         // Close the Scanner
@@ -36,7 +35,7 @@ public class Main {
         long startTime = System.nanoTime();
 
         // Calculation Proper
-        List<Integer> primes = new Calculator(nLimit, nThreads).execute();
+        List<Integer> primes = new Calculator(nThreads).execute();
 
         long endTime = System.nanoTime();
 

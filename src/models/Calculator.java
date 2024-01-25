@@ -4,25 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Calculator {
-    private int nLimit;
+    // 10^7
+    private final int LIMIT = 10000000;
     private int nThreads;
 
     /**
      * Default Constructor for Calculator Object
-     * @param nLimit - The upper bound integer in looking for Prime Numbers.
      */
-    public Calculator(int nLimit) {
-        this.nLimit = nLimit;
+    public Calculator() {
         this.nThreads = 1;
     }
 
     /**
-     * Constructor for Calculator Object
-     * @param nLimit - The upper bound integer in looking for Prime Numbers.
+     * Constructor for Calculator Object with custom Threads.
      * @param nThreads - Number of Threads allowed to use.
      */
-    public Calculator(int nLimit, int nThreads) {
-        this.nLimit = nLimit;
+    public Calculator(int nThreads) {
         this.nThreads = nThreads;
     }
 
@@ -36,7 +33,7 @@ public class Calculator {
         List<Integer> divisions = new ArrayList<Integer>();
 
         // Calculate the size of each part
-        int partSize = nLimit / nThreads;
+        int partSize = LIMIT / nThreads;
 
         // Initialize the starting point of the range
         int startRange = 1;
@@ -50,6 +47,7 @@ public class Calculator {
             startRange = startRange + partSize;
         }
 
+        // Include the Last Number
         divisions.add(startRange - 1);
 
         return divisions;
@@ -74,6 +72,7 @@ public class Calculator {
             // Create a new thread for each range
             Thread thread = new Thread(() -> {
                 List<Integer> threadPrimes = new PrimeChecker(startRange, endRange).seek();
+                // Thread-safe access to primes
                 synchronized (primes) {
                     primes.addAll(threadPrimes);
                 }

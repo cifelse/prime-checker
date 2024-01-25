@@ -36,7 +36,7 @@ public class PrimeChecker {
      * @param n - integer to check.
      * @return true if n is prime, and false otherwise.
      */
-    public boolean isPrime(int n) {
+    private boolean isPrime(int n) {
         if (n == 0 || n == 1) return false;
 
         for (int i = 2; i * i <= n; i++) {
