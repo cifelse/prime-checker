@@ -26,12 +26,8 @@ public class Server {
                 String message = in.readUTF();
                 System.out.println("Client message: " + message);
     
-                // Echo the message back to the client
-                out.writeUTF("Server response: " + message);
-                out.flush();
-    
                 // clientSocket.close();
-                out.writeUTF("STOP");
+                out.writeUTF("1 10");
                 out.flush();
             }
             catch (IOException e) {
