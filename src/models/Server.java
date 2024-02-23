@@ -30,7 +30,9 @@ public class Server {
                 out.writeUTF("Server response: " + message);
                 out.flush();
     
-                clientSocket.close();
+                // clientSocket.close();
+                out.writeUTF("STOP");
+                out.flush();
             }
             catch (IOException e) {
                 System.out.println(e);
@@ -49,7 +51,7 @@ public class Server {
         // Continuously accept connections  
         while (true) {
             // Accept a new connection for each Client
-            clients.add(new ClientHandler(serverSocket.accept()));
+            new ClientHandler(serverSocket.accept()).run();
         }
     }
 }

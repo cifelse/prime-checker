@@ -5,14 +5,27 @@ import java.util.List;
 
 public class Calculator {
     // 10^7
-    private final int LIMIT = 10000000;
+    private int start;
+    private int end;
     private int nThreads;
+
 
     /**
      * Default Constructor for Calculator Object
      */
     public Calculator() {
         this.nThreads = 1;
+    }
+
+    /**
+     * Constructor for Calculator Object with custom Threads.
+     * @param start - the starting range
+     * @param end - the ending range
+     */
+    public Calculator(int start, int end) {
+        this.nThreads = 4;
+        this.start = start;
+        this.end = end;
     }
 
     /**
@@ -33,7 +46,7 @@ public class Calculator {
         List<Integer> divisions = new ArrayList<Integer>();
 
         // Calculate the size of each part
-        int partSize = LIMIT / nThreads;
+        int partSize = end / nThreads;
 
         // Initialize the starting point of the range
         int startRange = 1;
@@ -54,12 +67,12 @@ public class Calculator {
     }
 
     /**
-     * The main function that determines the Prime numbers given the limit and threads
+     * The main function that determines the Prime numbers given the end and threads
      * @return ArrayList of Prime Numbers
      */
-    public List<Integer> execute() {
-        List<Integer> primes = new ArrayList<>();
-        List<Thread> threads = new ArrayList<>();
+    public ArrayList<Integer> execute() {
+        ArrayList<Integer> primes = new ArrayList<>();
+        ArrayList<Thread> threads = new ArrayList<>();
 
         // Identify the Divisions
         List<Integer> divisions = getDivisions();
