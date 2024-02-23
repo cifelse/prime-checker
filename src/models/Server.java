@@ -2,8 +2,10 @@ package src.models;
 
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server {
+    public static final CopyOnWriteArrayList<ClientHandler> clients = new CopyOnWriteArrayList<>();
     public static class ClientHandler implements Runnable {
         private final Socket clientSocket;
 
@@ -44,10 +46,10 @@ public class Server {
 
         System.out.println("Server started on port " + port);
 
-        // Continuously accept connections
+        // Continuously accept connections  
         while (true) {
             // Accept a new connection for each Client
-            new ClientHandler(serverSocket.accept()).run();
+            clients.add(new ClientHandler(serverSocket.accept()));
         }
     }
 }
