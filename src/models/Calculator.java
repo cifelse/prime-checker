@@ -21,9 +21,10 @@ public class Calculator {
      * Constructor for Calculator Object with custom Threads.
      * @param start - the starting range
      * @param end - the ending range
+     * @param threads - the number of threads
      */
-    public Calculator(int start, int end) {
-        this.nThreads = 4;
+    public Calculator(int start, int end, int threads) {
+        this.nThreads = threads;
         this.start = start;
         this.end = end;
     }

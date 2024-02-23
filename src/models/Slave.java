@@ -22,7 +22,10 @@ public class Slave {
         this.out = new DataOutputStream(socket.getOutputStream());
 
         // Broadcast connection to server
-        broadcast("Slave " + socket.getLocalSocketAddress() + " connected to server.");
+        broadcast("Slave " + socket.getLocalSocketAddress() + ": Ready for work!");
+
+        // Receive confirmation
+        System.out.println(in.readUTF());
 
         while (true) {
             // Read data from the server
@@ -37,8 +40,10 @@ public class Slave {
 
             int end = Integer.parseInt(range[1]);
 
+            int thread = Integer.parseInt(range[2]);
+
             // Compute the Prime Numbers
-            compute(start, end);
+            compute(start, end, thread);
         }
     }
 
@@ -56,9 +61,10 @@ public class Slave {
      * Compute the Prime Numbers from start to end
      * @param start - Start range
      * @param end - end Range
+     * @param threads - number of threads
      */
-    public void compute(int start, int end) {
-        ArrayList<Integer> primes = new Calculator(start, end).execute();
+    public void compute(int start, int end, int threads) {
+        ArrayList<Integer> primes = new Calculator(start, end, threads).execute();
 
         System.out.println("I saw " + primes.size() + " prime numbers.");
     }
