@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Calculator {
-    // 10^7
     private int start;
     private int end;
     private int nThreads;
-
 
     /**
      * Default Constructor for Calculator Object
@@ -24,9 +22,9 @@ public class Calculator {
      * @param threads - the number of threads
      */
     public Calculator(int start, int end, int threads) {
-        this.nThreads = threads;
         this.start = start;
         this.end = end;
+        this.nThreads = threads;
     }
 
     /**
@@ -47,10 +45,10 @@ public class Calculator {
         List<Integer> divisions = new ArrayList<Integer>();
 
         // Calculate the size of each part
-        int partSize = end / nThreads;
+        int partSize = this.end / this.nThreads;
 
         // Initialize the starting point of the range
-        int startRange = 1;
+        int startRange = this.start;
 
         // Loop through the number of parts
         for (int i = 0; i < nThreads; i++) {

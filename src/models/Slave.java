@@ -7,43 +7,65 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class Slave {
+    // Hostname of the Server
+    private static final String HOSTNAME = "localhost";
 
+    // Port of the Server
+    private static final int PORT = 12345;
+
+    // Name of the Slave
+    private String name;
+
+    // Create input and output streams
     private final DataInputStream in;
     private final DataOutputStream out;
 
+    // Create a socket
     private final Socket socket;
+
+    // Create a Console
+    private final Console console;
 
     public Slave(String hostname, int port) throws IOException {
         // Create a socket
         this.socket = new Socket(hostname, port);
 
+        // Set the name of the Slave
+        this.name = "Slave " + String.valueOf(this.socket.getLocalSocketAddress()).split(":")[1];
+
+        this.console = new Console(name);
+
         // Create input and output streams
-        this.in = new DataInputStream(socket.getInputStream());
-        this.out = new DataOutputStream(socket.getOutputStream());
+        this.in = new DataInputStream(this.socket.getInputStream());
+        this.out = new DataOutputStream(this.socket.getOutputStream());
 
         // Broadcast connection to server
-        broadcast("Slave " + socket.getLocalSocketAddress() + ": Ready for work!");
+        broadcast("Ready for work!");
 
         // Receive confirmation
-        System.out.println(in.readUTF());
+        console.log(in.readUTF());
 
         while (true) {
             // Read data from the server
             String message = in.readUTF();
 
-            // If Instruction received is STOP, then break the loop
-            if (message.equals("STOP")) break;
+            // If Instruction received is END, then break the loop
+            if (message.equals("END")) break;
 
+            // Split the message into start, end, and thread
             String[] range = message.split(" ");
-
             int start = Integer.parseInt(range[0]);
-
             int end = Integer.parseInt(range[1]);
-
             int thread = Integer.parseInt(range[2]);
+
+            // Log the message
+            console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + thread + " threads.");
 
             // Compute the Prime Numbers
             compute(start, end, thread);
+
+            // Log completion
+            console.log("Computation completed.");
         }
     }
 
@@ -53,7 +75,7 @@ public class Slave {
      * @throws IOException 
      */
     public void broadcast(String message) throws IOException {
-        out.writeUTF(message);
+        out.writeUTF("[" + name + "]: " + message);
         out.flush();
     }
 
@@ -63,18 +85,25 @@ public class Slave {
      * @param end - end Range
      * @param threads - number of threads
      */
-    public void compute(int start, int end, int threads) {
+    public void compute(int start, int end, int threads) throws IOException {
         ArrayList<Integer> primes = new Calculator(start, end, threads).execute();
 
-        System.out.println("I saw " + primes.size() + " prime numbers.");
+        String result = "";
+
+        for (int prime : primes) {
+            result += prime + " ";
+        }
+
+        console.log(result);
+
+        broadcast(result);
     }
 
     public static void main(String[] args) throws IOException {
-        // Set parameters
-        String hostname = "localhost";
-        int port = 8080;
+        // Clear the console
+        new Console().clear();
         
         // Create a Slave
-        new Slave(hostname, port);
+        new Slave(Slave.HOSTNAME, Slave.PORT);
     }
 }
