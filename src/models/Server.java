@@ -62,35 +62,38 @@ public class Server {
          * @param start - the start of the range
          * @param end - the end of the range
          * @param divisions - the number of divisions
-         * @return
+         * @return a list of subranges
          */
         public static List<int[]> divideRange(int start, int end, int divisions) {
             if (divisions <= 0) {
                 throw new IllegalArgumentException("Number of divisions must be positive");
             }
-
+    
             if (start > end) {
                 throw new IllegalArgumentException("Start must be less than or equal to end");
             }
-
+    
             int rangeLength = end - start + 1;
             int subRangeLength = rangeLength / divisions;
             int remainder = rangeLength % divisions;
-
+    
             List<int[]> ranges = new ArrayList<>();
             int currentStart = start;
-
+    
             for (int i = 0; i < divisions; i++) {
                 int subrangeEnd = currentStart + subRangeLength - 1;
-
-                if (i < remainder) subrangeEnd++;
-
-                ranges.add(new int[]{ currentStart, subrangeEnd });
-                currentStart += subRangeLength;
+    
+                if (i < remainder) {
+                    subrangeEnd++;
+                }
+    
+                ranges.add(new int[]{currentStart, subrangeEnd});
+                currentStart = subrangeEnd + 1;
             }
-
+    
             return ranges;
         }
+
         /**
          * The main function for the ClientHandler
          */
@@ -139,7 +142,7 @@ public class Server {
                         
                         // Create a new thread for the master to work on
                         new Thread(() -> {
-                            List<Integer> results = new Calculator(ranges.get(0)[0], ranges.get(0)[1], threads).execute();
+                            ArrayList<Integer> results = new Calculator(ranges.get(0)[0], ranges.get(0)[1], threads).execute();
 
                             synchronized (primes) {
                                 primes.addAll(results);
