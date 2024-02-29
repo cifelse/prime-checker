@@ -66,7 +66,7 @@ public class Slave {
                 compute(start, end, thread);
 
                 // Log completion
-                console.log("Computation completed. Waiting for new instructions again.");
+                console.log("Waiting for new instructions again.");
             }
         }
         catch (Exception e) {
@@ -86,7 +86,7 @@ public class Slave {
      * @throws IOException 
      */
     public void broadcast(String message) throws IOException {
-        out.writeUTF("\n[" + name + "]: " + message + "\n");
+        out.writeUTF("[" + name + "]: " + message);
         out.flush();
     }
 
@@ -109,7 +109,7 @@ public class Slave {
     public void compute(int start, int end, int threads) throws IOException {
         ArrayList<Integer> primes = new Calculator(start, end, threads).execute();
 
-        console.log("I got the prime numbers!");
+        console.log("Done with the work! Sending the results to the master.");
 
         // Send the Results to the Server. one prime at a time
         for (int i = 0; i < primes.size(); i++) {
