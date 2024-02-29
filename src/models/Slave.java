@@ -107,8 +107,6 @@ public class Slave {
      * @param threads - number of threads
      */
     public void compute(int start, int end, int threads) throws IOException {
-        System.out.println(start + " " + end + " " + threads);
-
         ArrayList<Integer> primes = new Calculator(start, end, threads).execute();
 
         console.log("I got the prime numbers!");
