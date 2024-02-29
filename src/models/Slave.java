@@ -60,7 +60,7 @@ public class Slave {
                 int thread = Integer.parseInt(range[2]);
 
                 // Log the message
-                console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + thread + " threads.");
+                console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + thread + " thread/s.");
 
                 // Compute the Prime Numbers
                 compute(start, end, thread);
