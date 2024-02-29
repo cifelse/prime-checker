@@ -48,9 +48,17 @@ public class Console {
 
     /**
      * Log a message to the console
-     * @param message - the message to log
+     * @param message - the message to log in the console
      */
     public void log(String message) {
         System.out.println(message.indexOf("[") == 0 ? message : "[" + name + "]: " + message);
+    }
+
+    /**
+     * Log a message to the console
+     * @param code - the number to log in the console
+     */
+    public void log(int code) {
+        System.out.println(code);
     }
 }

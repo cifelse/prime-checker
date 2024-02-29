@@ -43,12 +43,12 @@ public class Calculator {
      */
     private List<Integer> getDivisions() {
         List<Integer> divisions = new ArrayList<Integer>();
-
-        // Calculate the size of each part
-        int partSize = this.end / this.nThreads;
-
+        
         // Initialize the starting point of the range
         int startRange = this.start;
+
+        // Calculate the size of each part
+        int partSize = (this.end - startRange) / this.nThreads;
 
         // Loop through the number of parts
         for (int i = 0; i < nThreads; i++) {

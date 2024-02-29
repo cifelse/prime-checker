@@ -14,9 +14,8 @@ public class Server {
     public static final int SLAVE_PORT = 12345;
     public static final int CLIENT_PORT = 8000;
 
-    // Create a list of slaves and clients
-    public static final CopyOnWriteArrayList<Socket> slaves = new CopyOnWriteArrayList<>();
-    public static final CopyOnWriteArrayList<Integer> primes = new CopyOnWriteArrayList<>();
+    // Create a list of slaves/workers
+    public static final CopyOnWriteArrayList<Socket> slaves = new CopyOnWriteArrayList<Socket>();
 
     // Create a new Console
     private static final Console console = new Console(NAME);
@@ -48,6 +47,16 @@ public class Server {
             out.flush();
         }
 
+        public void broadcast(int number) throws IOException {
+            out.writeInt(number);
+            out.flush();
+        }
+
+        public void broadcast(boolean status) throws IOException {
+            out.writeBoolean(status);
+            out.flush();
+        }
+ 
         /**
          * Divide the range into subranges
          * @param start - the start of the range
@@ -65,19 +74,19 @@ public class Server {
             }
 
             int rangeLength = end - start + 1;
-            int subrangeLength = rangeLength / divisions;
+            int subRangeLength = rangeLength / divisions;
             int remainder = rangeLength % divisions;
 
             List<int[]> ranges = new ArrayList<>();
             int currentStart = start;
 
             for (int i = 0; i < divisions; i++) {
-                int subrangeEnd = currentStart + subrangeLength - 1;
+                int subrangeEnd = currentStart + subRangeLength - 1;
 
                 if (i < remainder) subrangeEnd++;
 
                 ranges.add(new int[]{ currentStart, subrangeEnd });
-                currentStart += subrangeLength;
+                currentStart += subRangeLength;
             }
 
             return ranges;
@@ -87,39 +96,45 @@ public class Server {
          */
         @Override
         public void run() {
-            try {
-                while (true) {
+            while (true) {
+                try {
+                    // Wait and accept a client
                     Socket clientSocket = clientServerSocket.accept();
 
+                    // Reset the list of primes
+                    CopyOnWriteArrayList<Integer> primes = new CopyOnWriteArrayList<Integer>();
+    
                     this.in = new DataInputStream(clientSocket.getInputStream());
                     this.out = new DataOutputStream(clientSocket.getOutputStream());
-
+    
                     // Console Log
                     console.log("Client connected at " + clientSocket.getLocalSocketAddress());
-
-                    // Broadcast confirmation
+    
+                    // Broadcast to Client that connection is successful.
                     this.broadcast("You are successfully connected.");
-
+    
                     // Receive client request
                     String raw = in.readUTF();
+
+                    // Clean and get params
                     String[] params = raw.split(" ");
                     int start = Integer.parseInt(params[0]);
                     int end = Integer.parseInt(params[1]);
                     int threads = Integer.parseInt(params[2]);
-
-                    // Send confirmation to the client
+    
+                    // Send param confirmation to the client
                     this.broadcast("Received ranges " + start + " to " + end + " with " +  threads + " from the client.");
-
+    
                     // Compute the Prime Numbers
                     if (slaves.size() == 0) {
                         List<Integer> results = new Calculator(start, end, threads).execute();
-
+    
                         synchronized (primes) {
                             primes.addAll(results);
                         }
                     }
                     else {
-                        // Divide the work into subranges
+                        // Divide the work into subranges (+1 add master)
                         List<int[]> ranges = divideRange(start, end, slaves.size() + 1);
                         
                         // Create a new thread for the master to work on
@@ -130,26 +145,27 @@ public class Server {
                                 primes.addAll(results);
                             }
                         }).start();
-
+    
                         // Track all threads
                         List<Thread> threadsList = new ArrayList<>();
                     
                         for (int i = 0; i < slaves.size(); i++) {
                             Socket slave = slaves.get(i);
-
+    
                             DataOutputStream out = new DataOutputStream(slave.getOutputStream());
                             DataInputStream in = new DataInputStream(slave.getInputStream());
-
+    
                             // Send the ranges to the slaves to work on
                             out.writeUTF(ranges.get(i + 1)[0] + " " + ranges.get(i + 1)[1] + " " + threads);
                             out.flush();
-
+    
                             // Create a new thread for each slave to listen to the slaves' responses
                             Thread thread = new Thread(() -> {
                                 try {
-                                    synchronized (primes) {
-                                        for (String prime : in.readUTF().split("]: ")[1].split(" ")) {
-                                            primes.add(Integer.parseInt(prime));
+                                    // Listen to every prime number sent by the slaves
+                                    while (in.readBoolean()) {
+                                        synchronized (primes) {
+                                            primes.add(in.readInt());
                                         }
                                     }
                                 }
@@ -157,11 +173,12 @@ public class Server {
                                     console.log(e.toString());
                                 }
                             });
-
+    
                             threadsList.add(thread);
                             thread.start();
                         }
-
+                        
+                        // Wait for all slaves to be finished
                         for (Thread thread : threadsList) {
                             try {
                                 thread.join();
@@ -170,23 +187,33 @@ public class Server {
                                 console.log(e.toString());
                             }
                         }
-
-                        broadcast("Prime Numbers: " + primes);
                     }
 
+                    // Send Commence signal to the Client
+                    broadcast("Sending Prime Numbers...");
+
+                    // Send the Prime one by one to the Client
+                    for (int i = 0; i < primes.size(); i++) {
+                        broadcast(true);
+                        broadcast(primes.get(i));
+                    }
+
+                    // Send the END signal to the Client
+                    broadcast(false);
+    
                     console.log("Successfully served Client " + clientSocket.getLocalSocketAddress());
-
-                    // Wait for the client to disconnect
+    
+                    // Wait for the Client to disconnect
                     raw = in.readUTF();
-
+    
                     if (raw.equals("END")) {
                         console.log("Client " + clientSocket.getLocalSocketAddress() + " disconnected.");
                         clientSocket.close();
                     }
                 }
-            }
-            catch (IOException e) {
-                System.out.println("\n" + e);
+                catch (Exception e) {
+                    System.out.println(e);
+                }
             }
         }
     }
@@ -201,15 +228,15 @@ public class Server {
 
         @Override
         public void run() {
-            try {
-                while (true) {
+            while (true) {
+                try {
                     Socket slaveSocket = slaveServerSocket.accept();
 
                     DataInputStream in = new DataInputStream(slaveSocket.getInputStream());
                     DataOutputStream out = new DataOutputStream(slaveSocket.getOutputStream());
 
                     // Notify Server of Connection
-                    console.log(in.readUTF());
+                    System.out.println(in.readUTF());
 
                     // Broadcast confirmation
                     out.writeUTF("[Master]: You are successfully connected. Wait for instructions.");
@@ -218,9 +245,9 @@ public class Server {
                     // Add the slave to the list
                     slaves.add(slaveSocket);
                 }
-            }
-            catch (IOException e) {
-                System.out.println("\n" + e);
+                catch (IOException e) {
+                    System.out.println("\n" + e);
+                }
             }
         }
     }

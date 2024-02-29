@@ -4,7 +4,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Client {
     // Hostname of the Server
@@ -22,9 +24,9 @@ public class Client {
      * @param prompt - question to prompt to the user
      * @return the input of the user
      */
-    public static int getUserInput(Scanner scanner, String prompt) {
+    public static String getUserInput(Scanner scanner, String prompt) {
         System.out.print(prompt);
-        return scanner.nextInt();
+        return scanner.nextLine();
     }
 
     public static void main(String[] args) throws IOException {
@@ -34,16 +36,14 @@ public class Client {
         // User Input
         Scanner sc = new Scanner(System.in);
 
-        int start = getUserInput(sc, "Enter start range: ");
-        int end = getUserInput(sc, "Enter end range: ");
-        int threads = getUserInput(sc, "Enter thread count: ");
-
-        sc.close();
+        int start = Integer.parseInt(getUserInput(sc, "Enter start range: "));
+        int end = Integer.parseInt(getUserInput(sc, "Enter end range: "));
+        int threads = Integer.parseInt(getUserInput(sc, "Enter thread count: "));
 
         // Clear the console
         console.clear();
 
-        console.log("Sending the parameters [" + start + ", " + end + ", " + threads + "] to the server.");
+        console.log("Sending the parameters [" + start + ", " + end + ", " + threads + "] to the server.\n");
 
         // Create a socket
         Socket socket = new Socket(HOSTNAME, PORT);
@@ -52,25 +52,40 @@ public class Client {
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         DataInputStream in = new DataInputStream(socket.getInputStream());
 
-        // Receive a response from the server
-        String response = in.readUTF();
-        System.out.println(response);
+        // Receive the first response from the server (Connection Success)
+        System.out.println(in.readUTF());
 
         // Send the instructions to the server
         out.writeUTF(start + " " + end + " " + threads);
         out.flush();
 
-        // Wait the confirmation from the server
-        response = in.readUTF();
-        System.out.println(response);
+        // Receive the second response from the server (Param Confirmation)
+        System.out.println(in.readUTF());
 
-        // Wait for the answer from the server
-        response = in.readUTF();
-        System.out.println(response);
+        // Receive the third response from the server (Sending Commence)
+        System.out.println(in.readUTF());
+
+        // Receive the Prime Numbers
+        ArrayList<Integer> primes = new ArrayList<>();
+    
+        while (in.readBoolean()) {
+            primes.add(in.readInt());
+        }
 
         // Send the END signal to the server
         out.writeUTF("END");
         out.flush();
+
+        String choice = getUserInput(sc, "\n[Client]: I got " + primes.size() + " Prime Numbers. Show them? [Y/n]: ");
+
+        // Show the Prime Numbers
+        if (!choice.isEmpty() && (choice.contains("Y") || choice.contains("y"))) {
+            console.clear();
+            console.log(primes.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        }
+
+        // Close the Scanner
+        sc.close();
 
         // Close the connection
         socket.close();
