@@ -123,7 +123,7 @@ public class Server {
                     int threads = Integer.parseInt(params[2]);
     
                     // Send param confirmation to the client
-                    this.broadcast("Received ranges " + start + " to " + end + " with " +  threads + " from the client.");
+                    this.broadcast("Getting the Prime Numbers in the range " + start + " to " + end + " with " +  threads + " threads.");
     
                     // Compute the Prime Numbers
                     if (slaves.size() == 0) {
