@@ -137,20 +137,25 @@ public class Server {
                         }
                     }
                     else {
+                        // Track all threads
+                        List<Thread> threadsList = new ArrayList<>();
+
                         // Divide the work into subranges (+1 add master)
                         List<int[]> ranges = divideRange(start, end, slaves.size() + 1);
                         
                         // Create a new thread for the master to work on
-                        new Thread(() -> {
+                        Thread masterThread = new Thread(() -> {
+                            console.log("Handling the prime numbers from " + ranges.get(0)[0] + " to " + ranges.get(0)[1] + " using " + threads + " thread/s.");
+
                             ArrayList<Integer> results = new Calculator(ranges.get(0)[0], ranges.get(0)[1], threads).execute();
 
                             synchronized (primes) {
                                 primes.addAll(results);
                             }
-                        }).start();
-    
-                        // Track all threads
-                        List<Thread> threadsList = new ArrayList<>();
+                        });
+
+                        threadsList.add(masterThread);
+                        masterThread.start();
                     
                         for (int i = 0; i < slaves.size(); i++) {
                             Socket slave = slaves.get(i);

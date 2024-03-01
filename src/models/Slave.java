@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class Slave {
     // Hostname of the Server
-    private static final String HOSTNAME = "localhost";
+    private static final String HOSTNAME = "192.168.137.1";
 
     // Port of the Server
     private static final int PORT = 12345;
