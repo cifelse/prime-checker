@@ -83,7 +83,7 @@ public class Client {
 
             // Convert byte array back to ArrayList of Integers
             for (int i = 0; i < size; i++) {
-                int value = java.nio.ByteBuffer.wrap(byteBatch, i * 4, 4).getInt();
+                int value = ByteBuffer.wrap(byteBatch, i * 4, 4).getInt();
                 primes.add(value);
             }
         

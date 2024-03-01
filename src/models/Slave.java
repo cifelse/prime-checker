@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class Slave {
@@ -12,6 +13,9 @@ public class Slave {
 
     // Port of the Server
     private static final int PORT = 12345;
+
+    // Batch Size
+    public static final int BATCH = 1000;
 
     // Name of the Slave
     private String name;
@@ -92,6 +96,22 @@ public class Slave {
         out.flush();
     }
 
+    public void broadcast(ArrayList<Integer> batch) throws IOException {
+        // Convert integers to byte array
+        byte[] byteBatch = new byte[batch.size() * 4]; // 4 bytes per integer
+
+        for (int i = 0; i < batch.size(); i++) {
+            ByteBuffer.wrap(byteBatch, i * 4, 4).putInt(batch.get(i));
+        }
+
+        // Send batch size first
+        out.writeInt(batch.size());
+
+        // Send byte array
+        out.write(byteBatch);
+        out.flush();
+    }
+
     public void broadcast(boolean status) throws IOException {
         out.writeBoolean(status);
         out.flush();
@@ -106,25 +126,35 @@ public class Slave {
     public void compute(int start, int end, int threads) throws IOException {
         ArrayList<Integer> primes = new Calculator(start, end, threads).execute();
 
-        // Send the Results to the Server. one prime at a time
-        for (int i = 0; i < primes.size(); i++) {
-            // By broadcasting true, you are telling the server that the next number is a prime number
-            broadcast(true);
-            broadcast(primes.get(i));
-            
-            if (i != 0 && i % 100 == 0) {
-                console.clear();
-                console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
-                console.log("Done with the work! Sending " + i + "/" + primes.size() + " prime numbers to the Master.");
-            }
-        }
+        ArrayList<Integer> batch = new ArrayList<Integer>();
 
-        console.clear();
-        console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
-        console.log("Done with the work! Successfully sent all " + primes.size() + " prime numbers to the Master.");
+        for (int i = 0; i < primes.size(); i += BATCH) {
+            // Erase the batch
+            batch.clear();
+        
+            // Broadcast that you are still sending a batch
+            broadcast(true);
+        
+            // Fill the Batch
+            for (int j = i; j < i + BATCH && j < primes.size(); j++) {
+                batch.add(primes.get(j));
+            }
+        
+            // Send the batch
+            broadcast(batch);
+        
+            // UI/UX Console
+            console.clear();
+            console.log("Received instructions to find the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
+            console.log("Found " + primes.size() + "! Uploading " + i + "/" + primes.size() + " prime numbers to the Master.");
+        }
 
         // By broadcasting false, you are telling the server that the prime numbers are done
         broadcast(false);
+
+        console.clear();
+        console.log("Received instructions to find the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
+        console.log("Successfully uploaded " + primes.size() + " prime numbers to the Master.");
     }
 
     public static void main(String[] args) throws IOException {

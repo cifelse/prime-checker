@@ -15,7 +15,7 @@ public class Server {
     public static final int CLIENT_PORT = 8000;
 
     // Set the batch size
-    public static final int BATCH = 100;
+    public static final int BATCH = 1000;
 
     // Create a list of slaves/workers
     public static final ArrayList<Socket> slaves = new ArrayList<Socket>();
@@ -191,10 +191,19 @@ public class Server {
                             // Create a new thread for each slave to listen to the slaves' responses
                             Thread thread = new Thread(() -> {
                                 try {
-                                    // Listen to every prime number sent by the slaves
+                                    // While the Boolean signal is True
                                     while (in.readBoolean()) {
-                                        synchronized (primes) {
-                                            primes.add(in.readInt());
+                                        // Receive the size of the ArrayList
+                                        int size = in.readInt();
+
+                                        // Receive the byte array
+                                        byte[] byteBatch = new byte[size * 4];
+                                        in.readFully(byteBatch);
+
+                                        // Convert byte array back to ArrayList of Integers
+                                        for (int j = 0; j < size; j++) {
+                                            int value = ByteBuffer.wrap(byteBatch, j * 4, 4).getInt();
+                                            primes.add(value);
                                         }
                                     }
                                 }
