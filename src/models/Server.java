@@ -2,6 +2,7 @@ package src.models;
 
 import java.io.*;
 import java.net.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,9 @@ public class Server {
     // Set the port numbers
     public static final int SLAVE_PORT = 12345;
     public static final int CLIENT_PORT = 8000;
+
+    // Set the batch size
+    public static final int BATCH = 100;
 
     // Create a list of slaves/workers
     public static final ArrayList<Socket> slaves = new ArrayList<Socket>();
@@ -48,6 +52,22 @@ public class Server {
 
         public void broadcast(int number) throws IOException {
             out.writeInt(number);
+            out.flush();
+        }
+
+        public void broadcast(ArrayList<Integer> batch) throws IOException {
+            // Convert integers to byte array
+            byte[] byteBatch = new byte[batch.size() * 4]; // 4 bytes per integer
+
+            for (int i = 0; i < batch.size(); i++) {
+                ByteBuffer.wrap(byteBatch, i * 4, 4).putInt(batch.get(i));
+            }
+
+            // Send batch size first
+            out.writeInt(batch.size());
+
+            // Send byte array
+            out.write(byteBatch);
             out.flush();
         }
 
@@ -93,9 +113,6 @@ public class Server {
             return ranges;
         }
 
-        
-        
-
         /**
          * The main function for the ClientHandler
          */
@@ -132,7 +149,7 @@ public class Server {
     
                     // Compute the Prime Numbers
                     if (slaves.size() == 0) {
-                        List<Integer> results = new Calculator(start, end, threads).execute();
+                        ArrayList<Integer> results = new Calculator(start, end, threads).execute();
     
                         synchronized (primes) {
                             primes.addAll(results);
@@ -155,7 +172,7 @@ public class Server {
                                 primes.addAll(results);
                             }
 
-                            console.log("Master Thread is done with the work." + results.size());
+                            console.log("Master Thread is done with the work. It found " + results.size() + " Prime Numbers.");
                         });
 
                         threadsList.add(masterThread);
@@ -201,15 +218,33 @@ public class Server {
                         }
                     }
 
-                    // Send the Total Prime Numbers to the Client
-                    broadcast(primes.size());
+                    console.log("Everyone is done with the computation, there are " + primes.size() + " in total.");
 
-                    // Send the Prime one by one to the Client
-                    for (int i = 0; i < primes.size(); i++) {
+                    this.broadcast("Got it! There are " + primes.size() + " Prime Numbers from " + start + " to " + end);
+
+                    // Send the Total Prime Numbers to the Client
+                    this.broadcast(primes.size());
+
+                    ArrayList<Integer> batch = new ArrayList<Integer>();
+
+                    for (int i = 0; i < primes.size(); i += BATCH) {
+                        // Erase the batch
+                        batch.clear();
+                    
+                        // Broadcast that you are still sending a batch
                         broadcast(true);
-                        broadcast(primes.get(i));
+                    
+                        // Fill the Batch
+                        for (int j = i; j < i + BATCH && j < primes.size(); j++) {
+                            batch.add(primes.get(j));
+                        }
+                    
+                        // Send the batch
+                        broadcast(batch);
+                    
+                        // UI/UX Console
                         console.clear();
-                        console.log("Uploading " + i + "/" + primes.size() + " prime numbers to the Client.");
+                        console.log("Uploading " + (i + BATCH < primes.size() ? i + 1 : primes.size()) + "/" + primes.size() + " prime numbers to the Client.");
                     }
 
                     // Send the END signal to the Client

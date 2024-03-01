@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -62,14 +63,30 @@ public class Client {
         // Receive the second response from the server (Param Confirmation)
         System.out.println(in.readUTF());
 
+        // Receive the third response from the server (Done Computation)
+        System.out.println(in.readUTF());
+
         // Receive the total prime numbers from the server (Sending Commence)
         int total = in.readInt();
 
         // Receive the Prime Numbers
-        ArrayList<Integer> primes = new ArrayList<>();
+        ArrayList<Integer> primes = new ArrayList<Integer>();
         
+        // While the Boolean signal is True
         while (in.readBoolean()) {
-            primes.add(in.readInt());
+            // Receive the size of the ArrayList
+            int size = in.readInt();
+
+            // Receive the byte array
+            byte[] byteBatch = new byte[size * 4];
+            in.readFully(byteBatch);
+
+            // Convert byte array back to ArrayList of Integers
+            for (int i = 0; i < size; i++) {
+                int value = java.nio.ByteBuffer.wrap(byteBatch, i * 4, 4).getInt();
+                primes.add(value);
+            }
+        
             console.clear();
             console.log("There are " + total + " Prime Numbers from " + start + " to " + end + ".");
             console.log("Downloading " + primes.size() + "/" + total + " Prime Numbers.");
