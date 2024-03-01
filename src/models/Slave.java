@@ -116,6 +116,10 @@ public class Slave {
             // By broadcasting true, you are telling the server that the next number is a prime number
             broadcast(true);
             broadcast(primes.get(i));
+            
+            if (i % 100 == 0) {
+                console.log("Sent " + i + " prime numbers.");
+            }
         }
 
         // By broadcasting false, you are telling the server that the prime numbers are done
