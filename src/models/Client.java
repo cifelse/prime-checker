@@ -71,7 +71,7 @@ public class Client {
         while (in.readBoolean()) {
             primes.add(in.readInt());
             console.clear();
-            console.log("There are " + primes.size() + " Prime Numbers from " + start + " to " + end + ".");
+            console.log("There are " + total + " Prime Numbers from " + start + " to " + end + ".");
             console.log("Downloading " + primes.size() + "/" + total + " Prime Numbers.");
         }
 
