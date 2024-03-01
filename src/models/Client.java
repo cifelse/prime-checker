@@ -62,14 +62,12 @@ public class Client {
         // Receive the second response from the server (Param Confirmation)
         System.out.println(in.readUTF());
 
-        // Receive the third response from the server (Sending Commence)
-        System.out.println(in.readUTF());
+        // Receive the total prime numbers from the server (Sending Commence)
+        int total = in.readInt();
 
         // Receive the Prime Numbers
         ArrayList<Integer> primes = new ArrayList<>();
         
-        int total = in.readInt();
-
         while (in.readBoolean()) {
             primes.add(in.readInt());
             console.clear();
