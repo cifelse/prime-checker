@@ -47,8 +47,12 @@ public class Calculator {
         // Initialize the starting point of the range
         int startRange = this.start;
 
+        int count = this.end - this.start  + 1; 
+
         // Calculate the size of each part
-        int partSize = (this.end - startRange) / this.nThreads;
+        int remainder = count % this.nThreads;
+
+        int partSize = count / this.nThreads;
 
         // Loop through the number of parts
         for (int i = 0; i < nThreads; i++) {
@@ -59,8 +63,11 @@ public class Calculator {
             startRange = startRange + partSize;
         }
 
-        // Include the Last Number
-        divisions.add(startRange - 1);
+        // Include the Last Number & Remainder if greater than 0 
+        if(remainder > 0 )
+            startRange += remainder;
+
+        divisions.add(startRange-1);
 
         return divisions;
     }
@@ -80,6 +87,7 @@ public class Calculator {
         for (int i = 0; i < divisions.size() - 1; i++) {
             final int startRange = divisions.get(i);
             final int endRange = (i + 1 == divisions.size() - 1) ? divisions.get(i + 1) : divisions.get(i + 1) - 1;
+            System.out.println("Start: " + startRange + " end: " + endRange);
 
             // Create a new thread for each range
             Thread thread = new Thread(() -> {
