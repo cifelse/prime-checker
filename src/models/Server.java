@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server {
     // Set the name of the Server
@@ -15,7 +14,7 @@ public class Server {
     public static final int CLIENT_PORT = 8000;
 
     // Create a list of slaves/workers
-    public static final CopyOnWriteArrayList<Socket> slaves = new CopyOnWriteArrayList<Socket>();
+    public static final ArrayList<Socket> slaves = new ArrayList<Socket>();
 
     // Create a new Console
     private static final Console console = new Console(NAME);
@@ -94,6 +93,9 @@ public class Server {
             return ranges;
         }
 
+        
+        
+
         /**
          * The main function for the ClientHandler
          */
@@ -105,7 +107,7 @@ public class Server {
                     Socket clientSocket = clientServerSocket.accept();
 
                     // Reset the list of primes
-                    CopyOnWriteArrayList<Integer> primes = new CopyOnWriteArrayList<Integer>();
+                    ArrayList<Integer> primes = new ArrayList<Integer>();
     
                     this.in = new DataInputStream(clientSocket.getInputStream());
                     this.out = new DataOutputStream(clientSocket.getOutputStream());
@@ -251,7 +253,9 @@ public class Server {
                     out.flush();
 
                     // Add the slave to the list
-                    slaves.add(slaveSocket);
+                    synchronized (slaves) {
+                        slaves.add(slaveSocket);
+                    }
                 }
                 catch (IOException e) {
                     System.out.println("\n" + e);
