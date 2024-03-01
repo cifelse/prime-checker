@@ -145,15 +145,17 @@ public class Server {
                         // Divide the work into subranges (+1 add master)
                         List<int[]> ranges = divideRange(start, end, slaves.size() + 1);
                         
+                        console.log("Handling the prime numbers from " + ranges.get(0)[0] + " to " + ranges.get(0)[1] + " using " + threads + " thread/s.");
+
                         // Create a new thread for the master to work on
                         Thread masterThread = new Thread(() -> {
-                            console.log("Handling the prime numbers from " + ranges.get(0)[0] + " to " + ranges.get(0)[1] + " using " + threads + " thread/s.");
-
                             ArrayList<Integer> results = new Calculator(ranges.get(0)[0], ranges.get(0)[1], threads).execute();
 
                             synchronized (primes) {
                                 primes.addAll(results);
                             }
+
+                            console.log("Master Thread is done with the work." + results.size());
                         });
 
                         threadsList.add(masterThread);
@@ -199,13 +201,15 @@ public class Server {
                         }
                     }
 
-                    // Send Commence signal to the Client
-                    broadcast("Sending Prime Numbers...");
+                    // Send the Total Prime Numbers to the Client
+                    broadcast(primes.size());
 
                     // Send the Prime one by one to the Client
                     for (int i = 0; i < primes.size(); i++) {
                         broadcast(true);
                         broadcast(primes.get(i));
+                        console.clear();
+                        console.log("Uploading " + i + "/" + primes.size() + " prime numbers to the Client.");
                     }
 
                     // Send the END signal to the Client

@@ -57,10 +57,10 @@ public class Slave {
                 String[] range = message.split(" ");
                 int start = Integer.parseInt(range[0]);
                 int end = Integer.parseInt(range[1]);
-                int thread = Integer.parseInt(range[2]);
+                int threads = Integer.parseInt(range[2]);
 
                 // Compute the Prime Numbers
-                compute(start, end, thread);
+                compute(start, end, threads);
 
                 // Log completion
                 console.log("Waiting for new instructions again.");
@@ -115,15 +115,13 @@ public class Slave {
             if (i != 0 && i % 100 == 0) {
                 console.clear();
                 console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
-                console.log("Done with the work! Sending the results to the master...");
-                console.log("Sent " + i + "/" + end + " prime numbers. ");
+                console.log("Done with the work! Sending " + i + "/" + primes.size() + " prime numbers to the Master.");
             }
         }
 
         console.clear();
         console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
-        console.log("Done with the work! Sending the results to the master...");
-        console.log("Successfully sent all " + end + " prime numbers. ");
+        console.log("Done with the work! Successfully sent all " + primes.size() + " prime numbers to the Master.");
 
         // By broadcasting false, you are telling the server that the prime numbers are done
         broadcast(false);

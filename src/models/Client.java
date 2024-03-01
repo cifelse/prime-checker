@@ -67,16 +67,22 @@ public class Client {
 
         // Receive the Prime Numbers
         ArrayList<Integer> primes = new ArrayList<>();
-    
+        
+        int total = in.readInt();
+
         while (in.readBoolean()) {
             primes.add(in.readInt());
+            console.clear();
+            console.log("There are " + primes.size() + " Prime Numbers from " + start + " to " + end + ".");
+            console.log("Downloading " + primes.size() + "/" + total + " Prime Numbers.");
         }
 
         // Send the END signal to the server
         out.writeUTF("END");
         out.flush();
 
-        String choice = getUserInput(sc, "\n[Client]: I got " + primes.size() + " Prime Numbers. Show them? [Y/n]: ");
+        console.log("There are " + primes.size() + " Prime Numbers from " + start + " to " + end + ".");
+        String choice = getUserInput(sc, "[Client]: Download successful. Shall I proceed to show them? [Y/n]: ");
 
         // Show the Prime Numbers
         if (!choice.isEmpty() && (choice.contains("Y") || choice.contains("y"))) {
