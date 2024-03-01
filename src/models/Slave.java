@@ -63,6 +63,8 @@ public class Slave {
                 int end = Integer.parseInt(range[1]);
                 int threads = Integer.parseInt(range[2]);
 
+                console.log("Received instructions to find the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
+
                 // Compute the Prime Numbers
                 compute(start, end, threads);
 
