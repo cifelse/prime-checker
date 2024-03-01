@@ -50,10 +50,8 @@ public class Calculator {
         int count = this.end - this.start  + 1; 
 
         // Calculate the size of each part
-        int remainder = count % this.nThreads;
-
-        int partSize = count / this.nThreads;
-
+        int partSize = (int) Math.ceil((float)(this.end - startRange) / (float)this.nThreads);
+        
         // Loop through the number of parts
         for (int i = 0; i < nThreads; i++) {
             // Add the start point of the range to the list
@@ -63,11 +61,8 @@ public class Calculator {
             startRange = startRange + partSize;
         }
 
-        // Include the Last Number & Remainder if greater than 0 
-        if(remainder > 0 )
-            startRange += remainder;
-
-        divisions.add(startRange-1);
+        // Include the Last Number
+        divisions.add(this.end);
 
         return divisions;
     }
@@ -87,8 +82,7 @@ public class Calculator {
         for (int i = 0; i < divisions.size() - 1; i++) {
             final int startRange = divisions.get(i);
             final int endRange = (i + 1 == divisions.size() - 1) ? divisions.get(i + 1) : divisions.get(i + 1) - 1;
-            System.out.println("Start: " + startRange + " end: " + endRange);
-
+            
             // Create a new thread for each range
             Thread thread = new Thread(() -> {
                 List<Integer> threadPrimes = new PrimeChecker(startRange, endRange).seek();
