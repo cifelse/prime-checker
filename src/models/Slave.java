@@ -59,9 +59,6 @@ public class Slave {
                 int end = Integer.parseInt(range[1]);
                 int thread = Integer.parseInt(range[2]);
 
-                // Log the message
-                console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + thread + " thread/s.");
-
                 // Compute the Prime Numbers
                 compute(start, end, thread);
 
@@ -109,18 +106,24 @@ public class Slave {
     public void compute(int start, int end, int threads) throws IOException {
         ArrayList<Integer> primes = new Calculator(start, end, threads).execute();
 
-        console.log("Done with the work! Sending the results to the master.");
-
         // Send the Results to the Server. one prime at a time
         for (int i = 0; i < primes.size(); i++) {
             // By broadcasting true, you are telling the server that the next number is a prime number
             broadcast(true);
             broadcast(primes.get(i));
             
-            if (i % 100 == 0) {
-                console.log("Sent " + i + " prime numbers.");
+            if (i != 0 && i % 100 == 0) {
+                console.clear();
+                console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
+                console.log("Done with the work! Sending the results to the master...");
+                console.log("Sent " + i + "/" + end + " prime numbers. ");
             }
         }
+
+        console.clear();
+        console.log("Received instructions to compute the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
+        console.log("Done with the work! Sending the results to the master...");
+        console.log("Successfully sent all " + end + " prime numbers. ");
 
         // By broadcasting false, you are telling the server that the prime numbers are done
         broadcast(false);
