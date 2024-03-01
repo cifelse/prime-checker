@@ -30,16 +30,45 @@ public class Client {
         return scanner.nextLine();
     }
 
+    
     public static void main(String[] args) throws IOException {
+        int[] threads = {16, 8, 4, 2, 1, 32, 64, 128, 256, 512, 1024};
+        int start = 0, end = 100000000;
+        ArrayList<String> results = new ArrayList<>();
+        for (int t : threads){
+            float average = 0;
+
+            for (int i = 0; i < 3; i++){
+                run_main(start, end, t);
+            }
+
+            for (int i = 0; i < 5; i++){
+                long start_time = System.currentTimeMillis();
+                run_main(start, end, t);
+                long duration = System.currentTimeMillis() - start_time;
+
+                average += duration;
+            }
+            average /= 5;
+
+            results.add("Time: " + String.valueOf(average) + " Threads: " + t);
+        }
+
+        System.out.println();
+        for (String s: results)
+            System.out.println(s);
+    }
+
+    public static void run_main(int start, int end, int threads) throws IOException {
         // Clear the console
-        console.clear();
+        // console.clear();
 
         // User Input
-        Scanner sc = new Scanner(System.in);
+        // Scanner sc = new Scanner(System.in);
 
-        int start = Integer.parseInt(getUserInput(sc, "Enter start range: "));
-        int end = Integer.parseInt(getUserInput(sc, "Enter end range: "));
-        int threads = Integer.parseInt(getUserInput(sc, "Enter thread count: "));
+        // int start = Integer.parseInt(getUserInput(sc, "Enter start range: "));
+        // int end = Integer.parseInt(getUserInput(sc, "Enter end range: "));
+        // int threads = Integer.parseInt(getUserInput(sc, "Enter thread count: "));
 
         // Clear the console
         console.clear();
@@ -97,18 +126,19 @@ public class Client {
         out.flush();
 
         console.log("There are " + primes.size() + " Prime Numbers from " + start + " to " + end + ".");
-        String choice = getUserInput(sc, "[Client]: Download successful. Shall I proceed to show them? [Y/n]: ");
+        // String choice = getUserInput(sc, "[Client]: Download successful. Shall I proceed to show them? [Y/n]: ");
 
         // Show the Prime Numbers
-        if (!choice.isEmpty() && (choice.contains("Y") || choice.contains("y"))) {
-            console.clear();
-            console.log(primes.stream().map(Object::toString).collect(Collectors.joining(", ")));
-        }
+        // if (!choice.isEmpty() && (choice.contains("Y") || choice.contains("y"))) {
+        //     console.clear();
+        //     console.log(primes.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        // }
 
         // Close the Scanner
-        sc.close();
+        // sc.close();
 
         // Close the connection
         socket.close();
+        System.gc();
     }
 }
