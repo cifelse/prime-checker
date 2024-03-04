@@ -149,7 +149,7 @@ public class Server {
     
                     // Compute the Prime Numbers
                     if (slaves.size() == 0) {
-                        ArrayList<Integer> results = new Calculator(start, end, threads).execute();
+                        ArrayList<Integer> results = new PrimeCalculator(start, end, threads).execute();
     
                         synchronized (primes) {
                             primes.addAll(results);
@@ -166,7 +166,7 @@ public class Server {
 
                         // Create a new thread for the master to work on
                         Thread masterThread = new Thread(() -> {
-                            ArrayList<Integer> results = new Calculator(ranges.get(0)[0], ranges.get(0)[1], threads).execute();
+                            ArrayList<Integer> results = new PrimeCalculator(ranges.get(0)[0], ranges.get(0)[1], threads).execute();
 
                             synchronized (primes) {
                                 primes.addAll(results);

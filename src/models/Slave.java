@@ -7,7 +7,12 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-public class Slave {
+public class Slave implements Runnable {
+    public static void main(String[] args) throws Exception {
+        // Create a Slave
+        new Thread(new Slave(Slave.HOSTNAME, Slave.PORT)).start();
+    }
+
     // Hostname of the Server
     private static final String HOSTNAME = "localhost";
 
@@ -21,28 +26,37 @@ public class Slave {
     private String name;
 
     // Create input and output streams
-    private final DataInputStream in;
-    private final DataOutputStream out;
+    private DataInputStream in;
+    private DataOutputStream out;
 
     // Create a socket
-    private final Socket socket;
+    private Socket socket;
 
     // Create a Console
-    private final Console console;
+    private Console console;
 
-    public Slave(String hostname, int port) throws IOException {
-        // Create a socket
-        this.socket = new Socket(hostname, port);
+    public Slave(String hostname, int port) {
+        this.console = new Console("Slave");
 
-        // Set the name of the Slave according to the Local Socket Address
-        this.name = "Slave " + String.valueOf(this.socket.getLocalSocketAddress()).split(":")[1];
+        try {
+            // Create a socket
+            this.socket = new Socket(hostname, port);
 
-        this.console = new Console(name);
+            // Set the name of the Slave according to the Local Socket Address
+            this.name = "Slave " + String.valueOf(this.socket.getLocalSocketAddress()).split(":")[1];
+            console.setName(this.name);
 
-        // Create input and output streams
-        this.in = new DataInputStream(this.socket.getInputStream());
-        this.out = new DataOutputStream(this.socket.getOutputStream());
+            // Create input and output streams
+            this.in = new DataInputStream(this.socket.getInputStream());
+            this.out = new DataOutputStream(this.socket.getOutputStream());
+        }
+        catch (Exception e) {
+            this.console.log("Unable to connect to the Master.");
+        }
+    }
 
+    @Override
+    public void run() {
         try {
             // Broadcast connection to server
             broadcast("Ready for work!");
@@ -73,13 +87,7 @@ public class Slave {
             }
         }
         catch (Exception e) {
-            // Check if the server is dead
-            if (e instanceof java.io.EOFException) {
-                console.log("Our Master freaking died! Dobby is a free elf!");
-            }
-            else {
-                console.log(e.getMessage());
-            }
+            console.log("Our Master freaking died! Dobby is a free elf!");
         }
     }
 
@@ -126,7 +134,7 @@ public class Slave {
      * @param threads - number of threads
      */
     public void compute(int start, int end, int threads) throws IOException {
-        ArrayList<Integer> primes = new Calculator(start, end, threads).execute();
+        ArrayList<Integer> primes = new PrimeCalculator(start, end, threads).execute();
 
         ArrayList<Integer> batch = new ArrayList<Integer>();
 
@@ -157,13 +165,5 @@ public class Slave {
         console.clear();
         console.log("Received instructions to find the prime numbers from " + start + " to " + end + " using " + threads + " thread/s.");
         console.log("Successfully uploaded " + primes.size() + " prime numbers to the Master.");
-    }
-
-    public static void main(String[] args) throws IOException {
-        // Clear the console
-        new Console().clear();
-        
-        // Create a Slave
-        new Slave(Slave.HOSTNAME, Slave.PORT);
     }
 }
