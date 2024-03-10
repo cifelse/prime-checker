@@ -6,7 +6,6 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class Client {
     // Hostname of the Server
@@ -78,8 +77,6 @@ public class Client {
         // Send the END signal to the server
         out.writeUTF("END");
         out.flush();
-
-        console.log("There are " + primes.size() + " Prime Numbers from " + start + " to " + end + ".");
 
         // Show the Prime Numbers if the user answered Y
         String choice = console.input("Download successful. Shall I proceed to show them? [Y/n]: ").next();

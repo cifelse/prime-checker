@@ -22,11 +22,11 @@ public class Main {
         console.startTime();
 
         // Calculation Proper
-        ArrayList<Integer> primes = new PrimeCalculator(nThreads).execute();
+        ArrayList<Integer> primes = new PrimeCalculator(nThreads).calculate();
 
         // Display Time and Results
-        console.log("\nTotal Runtime: %s.", console.endTime());
+        console.endTime();
 
-        console.log("There are %d Prime Numbers found.\n\n", primes.size());
+        console.log("There are %d Prime Numbers found.\n", primes.size());
     }
 }

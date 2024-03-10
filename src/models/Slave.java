@@ -134,7 +134,7 @@ public class Slave implements Runnable {
      * @param threads - number of threads
      */
     public void compute(int start, int end, int threads) throws IOException {
-        ArrayList<Integer> primes = new PrimeCalculator(start, end, threads).execute();
+        ArrayList<Integer> primes = new PrimeCalculator(start, end, threads).calculate();
 
         ArrayList<Integer> batch = new ArrayList<Integer>();
 

@@ -9,7 +9,7 @@ public class PrimeCalculator {
     private int threads;
 
     /**
-     * Create a Calculator 
+     * Create a Calculator that calculates the Prime Numbers from 0 to 10^7 using 1 thread.
      */
     public PrimeCalculator() {
         this.start = 0;
@@ -18,7 +18,7 @@ public class PrimeCalculator {
     }
 
     /**
-     * Constructor for Calculator Object with custom Threads.
+     * Create a Calculator that calculates the Prime Numbers from 0 to 10^7 using a custom number of threads.
      * @param threads - Number of Threads allowed to use.
      */
     public PrimeCalculator(int threads) {
@@ -28,7 +28,18 @@ public class PrimeCalculator {
     }
 
     /**
-     * Constructor for Calculator Object with custom Threads.
+     * Create a Calculator that calculates the Prime Numbers from start to end values using 1 thread.
+     * @param start - the starting range
+     * @param end - the ending range
+     */
+    public PrimeCalculator(int start, int end) {
+        this.start = start;
+        this.end = end;
+        this.threads = 1;
+    }
+
+    /**
+     * Create a Calculator that calculates the Prime Numbers from start to end values using a custom number of threads.
      * @param start - the starting range
      * @param end - the ending range
      * @param threads - the number of threads
@@ -40,9 +51,7 @@ public class PrimeCalculator {
     }
 
     /**
-     * A special function that identifies different divisions to be given
-     * to different threads later on.
-     * 
+     * A special function that identifies different divisions to be given to different threads later on.
      * @return an ArrayList with the start, divisions and the last number
      */
     private List<Integer> getDivisions() {
@@ -69,6 +78,9 @@ public class PrimeCalculator {
         return divisions;
     }
 
+    /**
+     * A special class that identifies a specific subrange.
+     */
     private class SubRange {
         public int start;
         public int end;
@@ -97,7 +109,7 @@ public class PrimeCalculator {
         // Loop through the number of parts
         for (int i = 0; i < threads - 1; i++) {
             // Add the start point of the range to the list
-            subRanges.add(new SubRange(startRange, startRange + interval));
+            subRanges.add(new SubRange(startRange, startRange + interval - 1));
 
             // Update the starting point for the next range
             startRange += interval;
@@ -113,7 +125,7 @@ public class PrimeCalculator {
      * The main function that determines the Prime numbers given the end and threads
      * @return ArrayList of Prime Numbers
      */
-    public ArrayList<Integer> execute() {
+    public ArrayList<Integer> calculate() {
         ArrayList<Integer> primes = new ArrayList<>();
         ArrayList<Thread> threads = new ArrayList<>();
 
@@ -185,13 +197,11 @@ public class PrimeCalculator {
          */
         private boolean isPrime(int n) {
             if (n == 0 || n == 1) return false;
-    
             for (int i = 2; i * i <= n; i++) {
                 if (n % i == 0) {
                     return false;
                 }
             }
-    
             return true;
         }
     }
