@@ -25,7 +25,7 @@ public class Client {
         // Clear the console
         console.clear();
 
-        // 
+        // Show the parameters
         console.log("Sending the parameters [" + start + ", " + end + ", " + threads + "] to the server.\n");
 
         // Create a socket
